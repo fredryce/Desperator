@@ -5,4 +5,9 @@
     <string name="firebase_path" translatable="false">https://desperator-522b3.firebaseio.com</string>
     <string name="firebase_email" translatable="false">xx6659@gmail.com</string>
     <string name="firebase_password" translatable="false">N!f3iwu69</string>
+    <string name="title_activity_maps">Current Place Details</string>
+    <string name="default_info_title">Default Location</string>
+    <string name="default_info_snippet">No places found, because location permission is disabled.</string>
+    <string name="option_get_place">Get place</string>
+    <string name="pick_place">Choose a place</string>
 </resources>

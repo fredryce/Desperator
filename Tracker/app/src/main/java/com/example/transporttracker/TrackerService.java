@@ -32,6 +32,7 @@ import android.util.Log;
 public class TrackerService extends Service {
 
     private int user_id;
+    private DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     private static final String TAG = TrackerService.class.getSimpleName();
 
@@ -82,8 +83,8 @@ public class TrackerService extends Service {
             public void onComplete(Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "firebase auth success");
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                    
+
+
                     requestLocationUpdates();
                 } else {
                     Log.d(TAG, "firebase auth failed");
