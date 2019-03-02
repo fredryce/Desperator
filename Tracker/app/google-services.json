@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "592321116723",
+    "firebase_url": "https://desperator-522b3.firebaseio.com",
+    "project_id": "desperator-522b3",
+    "storage_bucket": "desperator-522b3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592321116723:android:633c1d52ec724e9c",
+        "android_client_info": {
+          "package_name": "com.example.transporttracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "592321116723-upludtvn714543cidvmpnktrhalgc7b0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.transporttracker",
+            "certificate_hash": "f5ac0800b2c98ca990937cdb8eaa93711d33b5f9"
+          }
+        },
+        {
+          "client_id": "592321116723-rtgipuvq4frhru4euhhlcuflmh0rkff6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmEQY1bCA_SbKd2L-Uaak072gSUnRsnBo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "592321116723-rtgipuvq4frhru4euhhlcuflmh0rkff6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
