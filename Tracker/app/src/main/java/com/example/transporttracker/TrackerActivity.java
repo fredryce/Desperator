@@ -2,12 +2,16 @@ package com.example.transporttracker;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.Toast;
@@ -48,6 +52,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TrackerActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     private static final int PERMISSIONS_REQUEST = 1;
@@ -85,15 +93,31 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
 
+    private ArrayList<String[]> action = new ArrayList<String[]>();
 
-    private Button my_button;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("key");
+            String [] coords = message.split(",");
+            LatLng sydney = new LatLng(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
+            mMap.addMarker(new MarkerOptions().position(sydney));
+            CameraUpdateFactory.newLatLng(sydney);
 
 
+        }
+    };
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mMessageReceiver, new IntentFilter("intentKey"));
+
+
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
@@ -245,10 +269,17 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
 
-    }
+        if(!action.isEmpty()){
+            for(String[] coord: action){
+                LatLng sydney = new LatLng(Double.parseDouble(coord[0]), Double.parseDouble(coord[1]));
+                mMap.addMarker(new MarkerOptions().position(sydney));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-    public void showCurrentPlace(){
-        return;
+
+            }
+
+        }
+
     }
 
     /**

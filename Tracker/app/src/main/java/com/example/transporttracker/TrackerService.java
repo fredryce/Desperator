@@ -28,16 +28,25 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.Manifest;
+import android.nfc.Tag;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TrackerService extends Service {
 
-    private int unique_id;
+    private String unique_id;
+    private boolean already_assigned = false;
+
+    private String unique_id_happy;
+    private boolean already_assigned_happy = false;
 
     private String userID;
     private DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
@@ -66,7 +75,6 @@ public class TrackerService extends Service {
         return START_STICKY;
 
     }
-
 
 
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
@@ -101,6 +109,12 @@ public class TrackerService extends Service {
 
 
     }
+    private void sendMessageToActivity(String msg) {
+        Intent intent = new Intent("intentKey");
+        // You can also include some extra data.
+        intent.putExtra("key", msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
 
     private void requestLocationUpdates() {
@@ -118,21 +132,33 @@ public class TrackerService extends Service {
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                    ref = ref.getRoot();
                     final Location location = locationResult.getLastLocation();
                     if (location != null) {
-                        Log.d(TAG, "location update " + location);
-                        //ref.setValue(location.toString());
 
-                        /**
+
                         if(userID.equals("sad")){
+                            if(already_assigned_happy){
+                                ref.child("user_list").child(unique_id_happy).removeValue();
+                            }
                             ref = ref.child("need_list");
                             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    unique_id = (int)dataSnapshot.getChildrenCount();
-                                    ref.child("id_" + Integer.toString(unique_id)+"_need").child("long").setValue(Double.toString(location.getLongitude()));
-                                    ref.child("id_" + Integer.toString(unique_id)+"_need").child("lat").setValue(Double.toString(location.getLatitude()));
+                                    if(!already_assigned){
+                                        unique_id = ref.push().getKey();
+                                        already_assigned = true;
+
+                                    }
+
+                                    ref.child(unique_id).child("long").setValue(Double.toString(location.getLongitude()));
+                                    ref.child(unique_id).child("lat").setValue(Double.toString(location.getLatitude()));
+
+                                    for(DataSnapshot child: dataSnapshot.getChildren()) {
+                                        sendMessageToActivity(Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()));
+                                    }
+
+
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
@@ -144,14 +170,21 @@ public class TrackerService extends Service {
 
 
                         }
-                        else if(userID.equals("happy")){
+                        if(userID.equals("happy")){
+                            if(already_assigned_happy){
+                                ref.child("need_list").child(unique_id_happy).removeValue();
+                            }
+
                             ref = ref.child("user_list");
                             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    unique_id = (int)dataSnapshot.getChildrenCount();
-                                    ref.child("id_" + Integer.toString(unique_id)+"_user").child("long").setValue(Double.toString(location.getLongitude()));
-                                    ref.child("id_" + Integer.toString(unique_id)+"_user").child("lat").setValue(Double.toString(location.getLatitude()));
+                                    if(!already_assigned_happy){
+                                        unique_id_happy = ref.push().getKey();
+                                        already_assigned_happy=true;
+                                    }
+                                    ref.child(unique_id_happy).child("long").setValue(Double.toString(location.getLongitude()));
+                                    ref.child(unique_id_happy).child("lat").setValue(Double.toString(location.getLatitude()));
                                 }
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
@@ -161,7 +194,7 @@ public class TrackerService extends Service {
                         }
 
 
-                        **/
+
 
 
 
