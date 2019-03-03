@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
 import android.widget.Toast;
 
 
@@ -84,6 +85,8 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
 
+
+    private Button my_button;
 
 
 
@@ -162,15 +165,25 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
      * @return Boolean.
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) { //when button clicked switch to opposite
+        Intent intent_me = new Intent(this, TrackerService.class);
         if (item.getItemId() == R.id.option_get_place) {
-            showCurrentPlace();
+            //switch button
+            intent_me.putExtra("state", "sad");
+            //Toast.makeText(this,"im clicked",Toast.LENGTH_SHORT).show();
         }
+        else{
+            intent_me.putExtra("state", "happy");
+        }
+        startService(intent_me);
         return true;
     }
 
-    private void startTrackerService() {
-        startService(new Intent(this, TrackerService.class));
+    private void startTrackerService() { //initialization
+
+        Intent intent_me = new Intent(this, TrackerService.class);
+        intent_me.putExtra("state", "happy");
+        startService(intent_me);
     }
 
 

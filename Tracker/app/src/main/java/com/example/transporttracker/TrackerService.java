@@ -11,9 +11,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.ValueEventListener;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -25,16 +29,22 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.Manifest;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 public class TrackerService extends Service {
 
-    private int user_id;
+    private int unique_id;
+
+    private String userID;
     private DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     private static final String TAG = TrackerService.class.getSimpleName();
+
+    private FirebaseAuth mAuth;
 
     @Override
     public IBinder onBind(Intent intent) {return null;}
@@ -43,24 +53,21 @@ public class TrackerService extends Service {
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(this);
-        buildNotification();
         loginToFirebase();
     }
+    @Override
+    public int onStartCommand(Intent intent, int flag, int startId){
+        super.onStartCommand(intent, flag, startId);
 
-    private void buildNotification() {
-        String stop = "stop";
-        registerReceiver(stopReceiver, new IntentFilter(stop));
-        PendingIntent broadcastIntent = PendingIntent.getBroadcast(
-                this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
-        // Create the persistent notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_text))
-                .setOngoing(true)
-                .setContentIntent(broadcastIntent)
-                .setSmallIcon(R.drawable.ic_tracker);
-        startForeground(1, builder.build());
+        userID = intent.getStringExtra("state");
+
+        Toast.makeText(this, userID,Toast.LENGTH_SHORT).show();
+
+        return START_STICKY;
+
     }
+
+
 
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
@@ -74,7 +81,6 @@ public class TrackerService extends Service {
 
     private void loginToFirebase() {
         // Authenticate with Firebase, and request location updates
-
         String email = getString(R.string.firebase_email);
         String password = getString(R.string.firebase_password);
         FirebaseAuth.getInstance().signInWithEmailAndPassword(
@@ -84,13 +90,16 @@ public class TrackerService extends Service {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "firebase auth success");
 
-
                     requestLocationUpdates();
+
                 } else {
                     Log.d(TAG, "firebase auth failed");
                 }
             }
         });
+
+
+
     }
 
 
@@ -109,11 +118,57 @@ public class TrackerService extends Service {
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                    Location location = locationResult.getLastLocation();
+                    //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                    final Location location = locationResult.getLastLocation();
                     if (location != null) {
                         Log.d(TAG, "location update " + location);
-                        ref.setValue(location.toString());
+                        //ref.setValue(location.toString());
+
+                        /**
+                        if(userID.equals("sad")){
+                            ref = ref.child("need_list");
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    unique_id = (int)dataSnapshot.getChildrenCount();
+                                    ref.child("id_" + Integer.toString(unique_id)+"_need").child("long").setValue(Double.toString(location.getLongitude()));
+                                    ref.child("id_" + Integer.toString(unique_id)+"_need").child("lat").setValue(Double.toString(location.getLatitude()));
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+
+
+
+                        }
+                        else if(userID.equals("happy")){
+                            ref = ref.child("user_list");
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    unique_id = (int)dataSnapshot.getChildrenCount();
+                                    ref.child("id_" + Integer.toString(unique_id)+"_user").child("long").setValue(Double.toString(location.getLongitude()));
+                                    ref.child("id_" + Integer.toString(unique_id)+"_user").child("lat").setValue(Double.toString(location.getLatitude()));
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+
+
+                        **/
+
+
+
+
+
+
+
                     }
                 }
             }, null);
