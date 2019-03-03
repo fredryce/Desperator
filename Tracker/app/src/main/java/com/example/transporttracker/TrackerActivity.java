@@ -56,6 +56,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.sqrt;
+
 public class TrackerActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     private static final int PERMISSIONS_REQUEST = 1;
@@ -94,6 +97,7 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     private LatLng[] mLikelyPlaceLatLngs;
 
     private ArrayList<String[]> action = new ArrayList<String[]>();
+    private double [] prev = new double[2];
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -101,9 +105,21 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
             // Get extra data included in the Intent
             String message = intent.getStringExtra("key");
             String [] coords = message.split(",");
-            LatLng sydney = new LatLng(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]));
-            mMap.addMarker(new MarkerOptions().position(sydney));
-            CameraUpdateFactory.newLatLng(sydney);
+            double x = Double.parseDouble(coords[0]);
+            double y = Double.parseDouble(coords[1]);
+            try{
+                double diff = sqrt((y-prev[1])*(y-prev[1])+(x-prev[0])*(x-prev[0]));
+                if(diff>1){
+                    LatLng sydney = new LatLng(x,y);
+                    mMap.addMarker(new MarkerOptions().position(sydney));
+                    CameraUpdateFactory.newLatLng(sydney);
+                }
+            }
+            catch(Exception e){
+                prev[0] = x;
+                prev[1] = y;
+
+            }
 
 
         }
