@@ -75,6 +75,17 @@ public class TrackerService extends Service {
         return START_STICKY;
 
     }
+    @Override
+    public void onDestroy() {
+        if(already_assigned){
+            ref.getRoot().child("need_list").child(unique_id).removeValue();
+        }
+
+        if(already_assigned_happy){
+            ref.getRoot().child("user_list").child(unique_id_happy).removeValue();
+        }
+        super.onDestroy();
+    }
 
 
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
@@ -154,9 +165,12 @@ public class TrackerService extends Service {
                                     ref.child(unique_id).child("long").setValue(Double.toString(location.getLongitude()));
                                     ref.child(unique_id).child("lat").setValue(Double.toString(location.getLatitude()));
 
+                                    /**
+
                                     for(DataSnapshot child: dataSnapshot.getChildren()) {
                                         sendMessageToActivity(Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()));
                                     }
+                                     **/
 
 
                                 }
@@ -171,8 +185,8 @@ public class TrackerService extends Service {
 
                         }
                         if(userID.equals("happy")){
-                            if(already_assigned_happy){
-                                ref.child("need_list").child(unique_id_happy).removeValue();
+                            if(already_assigned){
+                                ref.child("need_list").child(unique_id).removeValue();
                             }
 
                             ref = ref.child("user_list");
@@ -191,6 +205,24 @@ public class TrackerService extends Service {
 
                                 }
                             });
+
+                            DatabaseReference temp = FirebaseDatabase.getInstance().getReference();
+                            temp.child("need_list").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    for(DataSnapshot child: dataSnapshot.getChildren()) {
+                                        sendMessageToActivity(Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()));
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+
                         }
 
 

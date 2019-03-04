@@ -96,7 +96,9 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
 
-    private ArrayList<String[]> action = new ArrayList<String[]>();
+    private Marker myMaker;
+
+    private ArrayList<String[]> action = new ArrayList<String[]>(); //
     private double [] prev = new double[2];
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -110,9 +112,14 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
             try{
                 double diff = sqrt((y-prev[1])*(y-prev[1])+(x-prev[0])*(x-prev[0]));
                 if(diff>1){
+                    try{
+                        myMaker.remove();
+                    }
+                    catch(Exception e){
+
+                    }
                     LatLng sydney = new LatLng(x,y);
-                    mMap.addMarker(new MarkerOptions().position(sydney));
-                    CameraUpdateFactory.newLatLng(sydney);
+                    myMaker = mMap.addMarker(new MarkerOptions().position(sydney));
                 }
             }
             catch(Exception e){
@@ -175,7 +182,8 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     }
     @Override
     protected void onStop() {
-
+        Intent intent = new Intent(this, TrackerService.class);
+        stopService(intent);
 
         super.onStop();
     }
@@ -207,7 +215,7 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { //when button clicked switch to opposite
         Intent intent_me = new Intent(this, TrackerService.class);
-        if (item.getItemId() == R.id.option_get_place) {
+        if (item.getItemId() == R.id.help) {
             //switch button
             intent_me.putExtra("state", "sad");
             //Toast.makeText(this,"im clicked",Toast.LENGTH_SHORT).show();
@@ -285,16 +293,7 @@ public class TrackerActivity extends AppCompatActivity implements OnMapReadyCall
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
 
-        if(!action.isEmpty()){
-            for(String[] coord: action){
-                LatLng sydney = new LatLng(Double.parseDouble(coord[0]), Double.parseDouble(coord[1]));
-                mMap.addMarker(new MarkerOptions().position(sydney));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-
-            }
-
-        }
 
     }
 
